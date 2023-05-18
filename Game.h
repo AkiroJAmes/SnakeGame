@@ -1,6 +1,7 @@
 #pragma once
 #include "raymath.h"
 #include "Snake.h"
+#include "Food.h"
 
 class Game
 {
@@ -30,8 +31,10 @@ protected:
 	float m_moveTime;
 
 	bool m_canMove;
+	bool m_gameOver;
 
 	Snake* m_snake;
 	Vector2* m_snakePosition;
+	Food m_food;
 };
 
