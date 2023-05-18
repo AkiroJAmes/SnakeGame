@@ -31,7 +31,7 @@ protected:
 
 	bool m_canMove;
 
-	Snake m_snake[256] = { };
-	Vector2 m_snakePosition[256] = { };
+	Snake* m_snake;
+	Vector2* m_snakePosition;
 };
 
