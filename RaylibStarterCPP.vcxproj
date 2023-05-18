@@ -169,7 +169,6 @@
   <ItemGroup>
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="Snake.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Game.h" />

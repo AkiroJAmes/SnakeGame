@@ -4,7 +4,7 @@
 
 Game::Game() {
 	m_gridHeight = 600;
-	m_gridWidth = 500;
+	m_gridWidth = 450;
 	m_cellSize = 31;
 
 	m_moveTimer = 0.0f;
@@ -115,6 +115,8 @@ void Game::Draw() {
 		DrawLineV(Vector2 { m_offset.x / 2, m_cellSize* i + m_offset.y / 2 }, Vector2 { m_gridWidth - m_offset.x / 2, m_cellSize* i + m_offset.y / 2 }, LIGHTGRAY);
 
 	for (int i = 0; i < m_tailCounter; i++) DrawRectangleV(m_snake[i].m_position, m_snake[i].m_size, m_snake[i].m_colour);
+
+	DrawText("Stage 1 -- Sussy Vents", m_gridWidth / 4, m_gridHeight + 50, 20, BLACK);
 
 	EndDrawing();
 }
