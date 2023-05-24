@@ -51,6 +51,7 @@ void Game::Load() {
 
 	m_tailCounter = 3;
 	m_score = 0;
+	m_scoreTarget = 0;
 	m_finalScore = 0;
 	m_moveCounter = 0;
 
@@ -101,8 +102,14 @@ void Game::Update(float deltaTime) {
 
 		// Timer for movement to limit snake speed
 		m_moveTimer -= deltaTime;
+		m_scoreTimer += deltaTime;
 
 		for (int i = 0; i < m_tailCounter; i++) m_snakePosition[i] = m_snake[i].m_position;
+
+		if (m_scoreTarget > m_score && m_scoreTimer >= 0.03f) {
+			m_scoreTimer = 0;
+			m_score++;
+		}
 
 		if (m_moveTimer <= 0) {
 			m_moveTimer = m_moveTime;
@@ -127,7 +134,8 @@ void Game::Update(float deltaTime) {
 			for (int i = 1; i < m_tailCounter; i++)
 				if (m_snake[0].m_position.x == m_snake[i].m_position.x && m_snake[0].m_position.y == m_snake[i].m_position.y) {
 					m_gameOver = true;
-					m_finalScore = m_score;
+					m_finalScore = m_scoreTarget;
+					m_score = m_scoreTarget;
 				}
 		}
 
@@ -152,9 +160,9 @@ void Game::Update(float deltaTime) {
 		{
 			m_snake[m_tailCounter].m_position = m_snakePosition[m_tailCounter - 1];
 
-			float calculatedScore = 1 * CalculateScoreMulti();
+			float calculatedScore = (1 * CalculateScoreMulti());
 
-			m_score += calculatedScore;
+			m_scoreTarget += calculatedScore;
 
 
 			m_tailCounter++;
@@ -278,7 +286,7 @@ void Game::Draw() {
 
 		//DrawText("Stage 1 -- Sussy Vents", m_gridWidth / 4, m_gridHeight + 50, 20, BLACK);
 
-		DrawText(scoreText.c_str(), 10, m_gridHeight + 15, 10, BLACK);
+		DrawText(scoreText.c_str(), GetScreenWidth() / 2 - MeasureText(scoreText.c_str(), 40) / 2, m_gridHeight + 15, 40, BLACK);
 		DrawText(moveText.c_str(), 10, m_gridHeight + 25, 10, BLACK);
 		DrawText(multiText.c_str(), 10, m_gridHeight + 35, 10, BLACK);
 	}

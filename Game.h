@@ -29,6 +29,7 @@ protected:
 
 	int m_tailCounter;
 	int m_score;
+	int m_scoreTarget;
 	int m_finalScore;
 	int m_moveCounter;
 
@@ -36,6 +37,7 @@ protected:
 
 	float m_moveTimer;
 	float m_moveTime;
+	float m_scoreTimer;
 
 	bool m_canMove;
 	bool m_gameOver;
