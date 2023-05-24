@@ -17,6 +17,7 @@ protected:
 	void Unload();
 
 	void LoadHighscores();
+	float CalculateScoreMulti();
 
 	void Update(float dt);
 	void Draw();
@@ -29,6 +30,7 @@ protected:
 	int m_tailCounter;
 	int m_score;
 	int m_finalScore;
+	int m_moveCounter;
 
 	Vector2 m_offset;
 

@@ -2,6 +2,8 @@
 #include "raylib.h"
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <cmath>
 
 Game::Game() {
 	m_gridHeight = 600;
@@ -9,7 +11,7 @@ Game::Game() {
 	m_cellSize = 31;
 
 	m_moveTimer = 0.0f;
-	m_moveTime = 0.2f;
+	m_moveTime = 0.1f;
 
 	m_snake = { 0 };
 	m_snakePosition = { 0 };
@@ -19,6 +21,7 @@ Game::Game() {
 	m_tailCounter = 0;
 	m_score = 0;
 	m_finalScore = 0;
+	m_moveCounter = 0;
 
 	m_canMove = false;
 	m_gameOver = false;
@@ -49,6 +52,7 @@ void Game::Load() {
 	m_tailCounter = 3;
 	m_score = 0;
 	m_finalScore = 0;
+	m_moveCounter = 0;
 
 	m_offset.x = float(m_gridWidth % m_cellSize);
 	m_offset.y = float(m_gridHeight % m_cellSize);
@@ -102,6 +106,7 @@ void Game::Update(float deltaTime) {
 
 		if (m_moveTimer <= 0) {
 			m_moveTimer = m_moveTime;
+			m_moveCounter++;
 
 			for (int i = 0; i < m_tailCounter; i++) {
 				if (i == 0) {
@@ -146,9 +151,15 @@ void Game::Update(float deltaTime) {
 			(m_snake[0].m_position.y < (m_food.m_position.y + m_food.m_size.y) && (m_snake[0].m_position.y + m_snake[0].m_size.y) > m_food.m_position.y))
 		{
 			m_snake[m_tailCounter].m_position = m_snakePosition[m_tailCounter - 1];
-			m_score++;
+
+			float calculatedScore = 1 * CalculateScoreMulti();
+
+			m_score += calculatedScore;
+
+
 			m_tailCounter++;
 			m_food.m_active = false;
+			m_moveCounter = 0;
 		}
 	}
 	else {
@@ -157,6 +168,22 @@ void Game::Update(float deltaTime) {
 			m_gameOver = false;
 		}
 	}
+}
+
+/// <summary>
+/// Calculate score multiplier based on moves to food
+/// </summary>
+/// <returns></returns>
+float Game::CalculateScoreMulti() {
+	int x = m_moveCounter;
+	float a = -0.4f;
+	float b = 100.0f;
+	float c = 18.0f;
+	float d = -8.1f;
+
+	float multi = round((pow((x - d), a) * b - c) * 100.0f) / 100.0f;
+
+	return multi > 1 ? multi : 1.00f;
 }
 
 /// <summary>
@@ -175,7 +202,7 @@ void Game::LoadHighscores() {
 
 		highscoreFile.open(fileName, std::ios::in | std::ios::out | std::ios::trunc | std::ios::binary);
 
-		// Add default scores to newly create file
+		// Add default scores to newly created file
 		int defaultScore = 0;
 		highscoreFile.write(reinterpret_cast<const char*>(&defaultScore), sizeof(int));
 		highscoreFile.write(reinterpret_cast<const char*>(&defaultScore), sizeof(int));
@@ -184,7 +211,7 @@ void Game::LoadHighscores() {
 
 	highscoreFile.seekg(0);
 
-	// Loop through all scores, reorder and write scores
+	// Loop through all highscores, reorder and write scores
 	while (true) {
 		int score = 0;
 		highscoreFile.read((char*)&score, sizeof(int));
@@ -206,7 +233,9 @@ void Game::LoadHighscores() {
 		std::string text;
 		text = std::to_string(scorePos) + ". " + (score <= 0 ? "---" : std::to_string(score));
 
-		DrawText(text.c_str(), GetScreenWidth() / 2 - 2, GetScreenHeight() / 2 + 60 + (scorePos * 10), 10, GRAY);
+		Color textColour = GRAY;
+
+		DrawText(text.c_str(), GetScreenWidth() / 2 - 40, GetScreenHeight() / 2 + 60 + (scorePos * 28), 30, textColour);
 		scorePos++;
 
 		if(scorePos > 3)
@@ -223,8 +252,17 @@ void Game::Draw() {
 	ClearBackground(RAYWHITE);
 
 	// Score convertion
-	std::string scoreText;
+	std::string scoreText, moveText, multiText; 
 	scoreText = std::to_string(m_score);
+	moveText = std::to_string(m_moveCounter);
+
+	std::stringstream stream;
+	stream.precision(2);
+	stream << std::fixed;
+	stream << CalculateScoreMulti();
+
+
+	multiText = stream.str() + "x";
 
 
 	if (!m_gameOver) {
@@ -241,13 +279,15 @@ void Game::Draw() {
 		//DrawText("Stage 1 -- Sussy Vents", m_gridWidth / 4, m_gridHeight + 50, 20, BLACK);
 
 		DrawText(scoreText.c_str(), 10, m_gridHeight + 15, 10, BLACK);
+		DrawText(moveText.c_str(), 10, m_gridHeight + 25, 10, BLACK);
+		DrawText(multiText.c_str(), 10, m_gridHeight + 35, 10, BLACK);
 	}
 	else {
 		scoreText = std::to_string(m_finalScore);
 
 		DrawText("SCORE", GetScreenWidth() / 2 - MeasureText("SCORE", 30) / 2, GetScreenHeight() / 5, 30, GRAY);
 		DrawText(scoreText.c_str(), GetScreenWidth() / 2 - MeasureText(scoreText.c_str(), 40) / 2, GetScreenHeight() / 5 + 40, 40, GRAY);
-		DrawText("PRESS [ENTER] TO PLAY AGAIN", GetScreenWidth() / 2 - MeasureText("PRESS [ENTER] TO PLAY AGAIN", 20) / 2, GetScreenHeight() / 2 + 50, 20, GRAY);
+		DrawText("PRESS [ENTER] TO PLAY AGAIN", GetScreenWidth() / 2 - MeasureText("PRESS [ENTER] TO PLAY AGAIN", 20) / 2, GetScreenHeight() - 50, 20, GRAY);
 
 		LoadHighscores();
 
