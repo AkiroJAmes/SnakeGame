@@ -2,6 +2,7 @@
 #include "raymath.h"
 #include "Snake.h"
 #include "Food.h"
+#include <string>
 
 class Game
 {
@@ -15,6 +16,8 @@ protected:
 	void Load();
 	void Unload();
 
+	void LoadHighscores();
+
 	void Update(float dt);
 	void Draw();
 
@@ -24,6 +27,8 @@ protected:
 	int m_cellSize;
 
 	int m_tailCounter;
+	int m_score;
+	int m_finalScore;
 
 	Vector2 m_offset;
 
