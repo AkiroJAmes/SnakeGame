@@ -38,7 +38,9 @@ void Game::Run() {
 	Unload();
 	CloseWindow();
 }
-
+/// <summary>
+/// Reset variables for new game
+/// </summary>
 void Game::Load() { 
 	const int SNAKE_MAX_SIZE = (m_gridHeight / m_cellSize) * (m_gridWidth / m_cellSize);
 	m_snake = new Snake[SNAKE_MAX_SIZE];
@@ -116,6 +118,7 @@ void Game::Update(float deltaTime) {
 				if (m_snake[i].m_position.y > m_gridHeight - m_offset.y / 2 - m_cellSize) m_snake[i].m_position.y = m_offset.y / 2;
 			}
 
+			// Collision check with self
 			for (int i = 1; i < m_tailCounter; i++)
 				if (m_snake[0].m_position.x == m_snake[i].m_position.x && m_snake[0].m_position.y == m_snake[i].m_position.y) {
 					m_gameOver = true;
@@ -123,6 +126,7 @@ void Game::Update(float deltaTime) {
 				}
 		}
 
+		// Spawn new food
 		if (!m_food.m_active) {
 			m_food.m_active = true;
 			m_food.m_position = Vector2{ GetRandomValue(0, (m_gridWidth / m_cellSize) - 1) * m_cellSize + m_offset.x / 2, GetRandomValue(0, (m_gridHeight / m_cellSize) - 1) * m_cellSize + m_offset.y / 2 };
@@ -137,6 +141,7 @@ void Game::Update(float deltaTime) {
 			}
 		}
 
+		// Snek ate the food, make him grow!
 		if ((m_snake[0].m_position.x < (m_food.m_position.x + m_food.m_size.x) && (m_snake[0].m_position.x + m_snake[0].m_size.x) > m_food.m_position.x) &&
 			(m_snake[0].m_position.y < (m_food.m_position.y + m_food.m_size.y) && (m_snake[0].m_position.y + m_snake[0].m_size.y) > m_food.m_position.y))
 		{
@@ -154,6 +159,9 @@ void Game::Update(float deltaTime) {
 	}
 }
 
+/// <summary>
+/// Load and manage highscores
+/// </summary>
 void Game::LoadHighscores() {
 	char fileName[] = "Highscore.amongus";
 	std::fstream highscoreFile;
@@ -167,6 +175,7 @@ void Game::LoadHighscores() {
 
 		highscoreFile.open(fileName, std::ios::in | std::ios::out | std::ios::trunc | std::ios::binary);
 
+		// Add default scores to newly create file
 		int defaultScore = 0;
 		highscoreFile.write(reinterpret_cast<const char*>(&defaultScore), sizeof(int));
 		highscoreFile.write(reinterpret_cast<const char*>(&defaultScore), sizeof(int));
@@ -175,21 +184,25 @@ void Game::LoadHighscores() {
 
 	highscoreFile.seekg(0);
 
+	// Loop through all scores, reorder and write scores
 	while (true) {
 		int score = 0;
 		highscoreFile.read((char*)&score, sizeof(int));
 
+		// Reorder scores if current score is greater then the current read score
 		if (m_score > score) {
 			std::cout << "Writing new score to file..." << std::endl;
 			int pos = highscoreFile.tellg();
 			highscoreFile.seekg(pos - sizeof(int));
 			highscoreFile.write(reinterpret_cast<const char*>(&m_score), sizeof(int));
 
+			// Reset read position and loop again
 			m_score = score;
 			highscoreFile.seekg(0);
 			continue;
 		}
 
+		// Text formatting
 		std::string text;
 		text = std::to_string(scorePos) + ". " + (score <= 0 ? "---" : std::to_string(score));
 
@@ -200,6 +213,7 @@ void Game::LoadHighscores() {
 			break;
 	}
 
+	// Close the file!
 	highscoreFile.close();
 }
 
