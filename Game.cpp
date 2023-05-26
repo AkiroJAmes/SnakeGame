@@ -202,17 +202,17 @@ void Game::Draw() {
 	ClearBackground(RAYWHITE);
 
 	// Score convertion
-	std::string scoreText, moveText, multiText;
+	std::string scoreText, moveText, multiText, sizeText;
 	scoreText = std::to_string(m_score);
-	moveText = std::to_string(m_moveCounter);
+	moveText = "Moves taken: " + std::to_string(m_moveCounter);
 
 	std::stringstream stream;
 	stream.precision(2);
 	stream << std::fixed;
 	stream << CalculateScoreMulti();
 
-
-	multiText = stream.str() + "x";
+	multiText = "Score multi: " + stream.str() + "x";
+	sizeText = "Food consumed: " + std::to_string(m_tailCounter - 3);
 
 
 	if (!m_gameOver) {
@@ -229,14 +229,15 @@ void Game::Draw() {
 		//DrawText("Stage 1 -- Sussy Vents", m_gridWidth / 4, m_gridHeight + 50, 20, BLACK);
 
 		DrawText(scoreText.c_str(), GetScreenWidth() / 2 - MeasureText(scoreText.c_str(), 40) / 2, m_gridHeight + 15, 40, BLACK);
-		DrawText(moveText.c_str(), 10, m_gridHeight + 25, 10, BLACK);
-		DrawText(multiText.c_str(), 10, m_gridHeight + 35, 10, BLACK);
+		DrawText(sizeText.c_str(), GetScreenWidth() / 2 - 90, m_gridHeight + 80, 20, GRAY);
+		DrawText(moveText.c_str(), GetScreenWidth() / 2 - 90, m_gridHeight + 110, 20, GRAY);
+		DrawText(multiText.c_str(), GetScreenWidth() / 2 - 90, m_gridHeight + 140, 20, GRAY);
 	}
 	else {
-		scoreText = std::to_string(m_score);
-
 		DrawText("SCORE", GetScreenWidth() / 2 - MeasureText("SCORE", 30) / 2, GetScreenHeight() / 5, 30, GRAY);
 		DrawText(scoreText.c_str(), GetScreenWidth() / 2 - MeasureText(scoreText.c_str(), 40) / 2, GetScreenHeight() / 5 + 40, 40, GRAY);
+		DrawText(sizeText.c_str(), GetScreenWidth() / 2 - MeasureText(sizeText.c_str(), 30) / 2, GetScreenHeight() / 5 + 90, 30, GRAY);
+
 		DrawText("PRESS [ENTER] TO PLAY AGAIN", GetScreenWidth() / 2 - MeasureText("PRESS [ENTER] TO PLAY AGAIN", 20) / 2, GetScreenHeight() - 50, 20, GRAY);
 
 		int* scores = m_ScoreManager.GetScores();
