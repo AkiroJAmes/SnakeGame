@@ -1,5 +1,9 @@
 #pragma once
 #include "raymath.h"
+#include "Snake.h"
+#include "Food.h"
+#include "ScoreManager.h"
+#include <string>
 
 class Game
 {
@@ -13,7 +17,9 @@ protected:
 	void Load();
 	void Unload();
 
-	void Update(float dt);
+	float CalculateScoreMulti();
+
+	void Update(float deltaTime);
 	void Draw();
 
 protected:
@@ -21,6 +27,24 @@ protected:
 	int m_gridWidth;
 	int m_cellSize;
 
+	int m_tailCounter;
+	int m_score;
+	int m_scoreTarget;
+	int m_moveCounter;
+
 	Vector2 m_offset;
+
+	float m_moveTimer;
+	float m_moveTime;
+	float m_scoreTimer;
+
+	bool m_canMove;
+	bool m_gameOver;
+
+	Snake* m_snake;
+	Vector2* m_snakePosition;
+	Food m_food;
+
+	ScoreManager m_ScoreManager;
 };
 
