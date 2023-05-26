@@ -20,7 +20,6 @@ Game::Game() {
 
 	m_tailCounter = 0;
 	m_score = 0;
-	m_finalScore = 0;
 	m_moveCounter = 0;
 
 	m_canMove = false;
@@ -32,6 +31,10 @@ Game::~Game() { }
 void Game::Run() {
 	SetTargetFPS(60);
 	InitWindow(m_gridWidth, m_gridHeight + 200, "Snake Game");
+
+	// Load scores from file
+	m_ScoreManager.LoadScores();
+
 	Load();
 	while (!WindowShouldClose())
 	{
@@ -44,7 +47,7 @@ void Game::Run() {
 /// <summary>
 /// Reset variables for new game
 /// </summary>
-void Game::Load() { 
+void Game::Load() {
 	const int SNAKE_MAX_SIZE = (m_gridHeight / m_cellSize) * (m_gridWidth / m_cellSize);
 	m_snake = new Snake[SNAKE_MAX_SIZE];
 	m_snakePosition = new Vector2[SNAKE_MAX_SIZE];
@@ -52,7 +55,6 @@ void Game::Load() {
 	m_tailCounter = 3;
 	m_score = 0;
 	m_scoreTarget = 0;
-	m_finalScore = 0;
 	m_moveCounter = 0;
 
 	m_offset.x = float(m_gridWidth % m_cellSize);
@@ -64,10 +66,10 @@ void Game::Load() {
 		m_snake[i].m_speed = Vector2{ (float)31, 0 };
 
 		if (i == 0) m_snake[i].m_colour = DARKGREEN;
-		else if (i % 2 == 0) m_snake[i].m_colour = Color { 0, 170, 46, 255 };
+		else if (i % 2 == 0) m_snake[i].m_colour = Color{ 0, 170, 46, 255 };
 		else m_snake[i].m_colour = GREEN;
 
-		m_snakePosition[i] = Vector2{0, 0};
+		m_snakePosition[i] = Vector2{ 0, 0 };
 	}
 
 	m_food.m_size = Vector2{ (float)m_cellSize, (float)m_cellSize };
@@ -77,7 +79,7 @@ void Game::Load() {
 
 void Game::Unload() { }
 
-void Game::Update(float deltaTime) { 
+void Game::Update(float deltaTime) {
 	if (!m_gameOver) {
 		if (IsKeyPressed(KEY_RIGHT) && (m_snake[0].m_speed.x == 0) && m_canMove)
 		{
@@ -134,8 +136,8 @@ void Game::Update(float deltaTime) {
 			for (int i = 1; i < m_tailCounter; i++)
 				if (m_snake[0].m_position.x == m_snake[i].m_position.x && m_snake[0].m_position.y == m_snake[i].m_position.y) {
 					m_gameOver = true;
-					m_finalScore = m_scoreTarget;
 					m_score = m_scoreTarget;
+					m_ScoreManager.UpdateScores(m_score);
 				}
 		}
 
@@ -171,7 +173,7 @@ void Game::Update(float deltaTime) {
 		}
 	}
 	else {
-		if(IsKeyPressed(KEY_ENTER)) {
+		if (IsKeyPressed(KEY_ENTER)) {
 			Load();
 			m_gameOver = false;
 		}
@@ -194,73 +196,13 @@ float Game::CalculateScoreMulti() {
 	return multi > 1 ? multi : 1.00f;
 }
 
-/// <summary>
-/// Load and manage highscores
-/// </summary>
-void Game::LoadHighscores() {
-	char fileName[] = "Highscore.amongus";
-	std::fstream highscoreFile;
-	int scorePos = 1;
-
-	highscoreFile.open(fileName, std::ios::in | std::ios::out | std::ios::binary);
-
-	// Create file if it doesnt exist
-	if(!highscoreFile) {
-		std::cout << "Highscore file not found, creating a new file..." << std::endl;
-
-		highscoreFile.open(fileName, std::ios::in | std::ios::out | std::ios::trunc | std::ios::binary);
-
-		// Add default scores to newly created file
-		int defaultScore = 0;
-		highscoreFile.write(reinterpret_cast<const char*>(&defaultScore), sizeof(int));
-		highscoreFile.write(reinterpret_cast<const char*>(&defaultScore), sizeof(int));
-		highscoreFile.write(reinterpret_cast<const char*>(&defaultScore), sizeof(int));
-	}
-
-	highscoreFile.seekg(0);
-
-	// Loop through all highscores, reorder and write scores
-	while (true) {
-		int score = 0;
-		highscoreFile.read((char*)&score, sizeof(int));
-
-		// Reorder scores if current score is greater then the current read score
-		if (m_score > score) {
-			std::cout << "Writing new score to file..." << std::endl;
-			int pos = highscoreFile.tellg();
-			highscoreFile.seekg(pos - sizeof(int));
-			highscoreFile.write(reinterpret_cast<const char*>(&m_score), sizeof(int));
-
-			// Reset read position and loop again
-			m_score = score;
-			highscoreFile.seekg(0);
-			continue;
-		}
-
-		// Text formatting
-		std::string text;
-		text = std::to_string(scorePos) + ". " + (score <= 0 ? "---" : std::to_string(score));
-
-		Color textColour = GRAY;
-
-		DrawText(text.c_str(), GetScreenWidth() / 2 - 40, GetScreenHeight() / 2 + 60 + (scorePos * 28), 30, textColour);
-		scorePos++;
-
-		if(scorePos > 3)
-			break;
-	}
-
-	// Close the file!
-	highscoreFile.close();
-}
-
 void Game::Draw() {
 	BeginDrawing();
 
 	ClearBackground(RAYWHITE);
 
 	// Score convertion
-	std::string scoreText, moveText, multiText; 
+	std::string scoreText, moveText, multiText;
 	scoreText = std::to_string(m_score);
 	moveText = std::to_string(m_moveCounter);
 
@@ -291,13 +233,23 @@ void Game::Draw() {
 		DrawText(multiText.c_str(), 10, m_gridHeight + 35, 10, BLACK);
 	}
 	else {
-		scoreText = std::to_string(m_finalScore);
+		scoreText = std::to_string(m_score);
 
 		DrawText("SCORE", GetScreenWidth() / 2 - MeasureText("SCORE", 30) / 2, GetScreenHeight() / 5, 30, GRAY);
 		DrawText(scoreText.c_str(), GetScreenWidth() / 2 - MeasureText(scoreText.c_str(), 40) / 2, GetScreenHeight() / 5 + 40, 40, GRAY);
 		DrawText("PRESS [ENTER] TO PLAY AGAIN", GetScreenWidth() / 2 - MeasureText("PRESS [ENTER] TO PLAY AGAIN", 20) / 2, GetScreenHeight() - 50, 20, GRAY);
 
-		LoadHighscores();
+		int* scores = m_ScoreManager.GetScores();
+
+		for (int i = 1; i < m_ScoreManager.ScoreSize() + 1; i++) {
+			// Text formatting
+			std::string text;
+			text = std::to_string(i) + ". " + (scores[i - 1] <= 0 ? "---" : std::to_string(scores[i - 1]));
+
+			Color textColour = GRAY;
+
+			DrawText(text.c_str(), GetScreenWidth() / 2 - 40, GetScreenHeight() / 2 + 60 + (i * 28), 30, textColour);
+		}
 
 	}
 

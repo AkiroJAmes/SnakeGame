@@ -2,6 +2,7 @@
 #include "raymath.h"
 #include "Snake.h"
 #include "Food.h"
+#include "ScoreManager.h"
 #include <string>
 
 class Game
@@ -30,7 +31,6 @@ protected:
 	int m_tailCounter;
 	int m_score;
 	int m_scoreTarget;
-	int m_finalScore;
 	int m_moveCounter;
 
 	Vector2 m_offset;
@@ -45,5 +45,7 @@ protected:
 	Snake* m_snake;
 	Vector2* m_snakePosition;
 	Food m_food;
+
+	ScoreManager m_ScoreManager;
 };
 
