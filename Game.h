@@ -17,10 +17,9 @@ protected:
 	void Load();
 	void Unload();
 
-	void LoadHighscores();
 	float CalculateScoreMulti();
 
-	void Update(float dt);
+	void Update(float deltaTime);
 	void Draw();
 
 protected:

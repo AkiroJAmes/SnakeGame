@@ -23,10 +23,10 @@ void ScoreManager::LoadScores() {
 		highscoreFile.open(fileName, std::ios::in | std::ios::out | std::ios::trunc | std::ios::binary);
 
 		// Add default scores to newly created file
-		int defaultScore = 0;
-		highscoreFile.write(reinterpret_cast<const char*>(&defaultScore), sizeof(int));
-		highscoreFile.write(reinterpret_cast<const char*>(&defaultScore), sizeof(int));
-		highscoreFile.write(reinterpret_cast<const char*>(&defaultScore), sizeof(int));
+		int defaultScore[] = { 300, 150, 0 };
+		highscoreFile.write(reinterpret_cast<const char*>(&defaultScore[0]), sizeof(int));
+		highscoreFile.write(reinterpret_cast<const char*>(&defaultScore[1]), sizeof(int));
+		highscoreFile.write(reinterpret_cast<const char*>(&defaultScore[2]), sizeof(int));
 	}
 	else {
 		std::cout << "Found highscore file, opening..." << std::endl;
@@ -77,6 +77,8 @@ void ScoreManager::SaveScores() {
 
 	// Regenerate and restore scores if the file is somehow missing upon saving a score
 	if (!highscoreFile) {
+		std::cout << "Highscore file not found when attempting to write to file..." << std::endl;
+
 		int tempScores[MAX_SCORE_SIZE];
 
 		// Save a copy of the array before file regen

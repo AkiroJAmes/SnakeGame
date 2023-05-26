@@ -11,7 +11,7 @@ Game::Game() {
 	m_cellSize = 31;
 
 	m_moveTimer = 0.0f;
-	m_moveTime = 0.1f;
+	m_moveTime = 0.15f;
 
 	m_snake = { 0 };
 	m_snakePosition = { 0 };
@@ -61,13 +61,16 @@ void Game::Load() {
 	m_offset.y = float(m_gridHeight % m_cellSize);
 
 	for (int i = 0; i < SNAKE_MAX_SIZE; i++) {
-		m_snake[i].m_position = Vector2{ m_offset.x / 2, m_offset.y / 2 };
+		m_snake[i].m_position = Vector2{ (m_offset.x / 2), m_offset.y / 2 };
 		m_snake[i].m_size = Vector2{ (float)m_cellSize, (float)m_cellSize };
-		m_snake[i].m_speed = Vector2{ (float)31, 0 };
+		m_snake[i].m_speed = Vector2{ (float)m_cellSize, 0 };
 
 		if (i == 0) m_snake[i].m_colour = DARKGREEN;
 		else if (i % 2 == 0) m_snake[i].m_colour = Color{ 0, 170, 46, 255 };
-		else m_snake[i].m_colour = GREEN;
+		else {
+			m_snake[i].m_colour = GREEN;
+			m_snake[i].m_size = Vector2{ 26, 26 };
+		}
 
 		m_snakePosition[i] = Vector2{ 0, 0 };
 	}
